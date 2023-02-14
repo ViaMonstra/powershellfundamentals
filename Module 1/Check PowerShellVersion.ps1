@@ -1,0 +1,3 @@
+# Check PowerShell Version
+
+$PSVersionTable
