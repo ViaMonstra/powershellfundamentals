@@ -1,0 +1,17 @@
+<Computers>
+	<Computer>
+		<Name>SRV-01</Name>
+		<Ip>127.0.0.1</Ip>
+		<Include>true</Include>
+	</Computer>	
+	<Computer>
+		<Name>SRV-02</Name>
+		<Ip>192.168.0.102</Ip>
+		<Include>false</Include>
+	</Computer>	
+	<Computer>
+		<Name>SRV-03</Name>
+		<Ip>192.168.0.103</Ip>
+		<Include>true</Include>
+	</Computer>	
+</Computers>

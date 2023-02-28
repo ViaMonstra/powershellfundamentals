@@ -1,0 +1,5 @@
+<Computers>
+	<Computer name="SRV-01" ip="127.0.0.1" include="true" />
+	<Computer name="SRV-02" ip="192.168.0.102" include="false" />
+	<Computer name="SRV-03" ip="192.168.0.103" include="true" />
+</Computers>
