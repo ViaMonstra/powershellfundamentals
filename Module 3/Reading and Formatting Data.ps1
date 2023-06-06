@@ -31,6 +31,8 @@ Get-NetIPConfiguration | Format-Table
 Get-NetIPConfiguration | Format-Table -Wrap
 
 # Group By
-Get-Service
-Get-Service | Sort-Object Status
-Get-Service | Sort-Object Status | Format-Table -GroupBy Status
+$services = Get-Service
+$services | Sort-Object Status
+$services | Sort-Object Status | Format-Table -GroupBy Status
+
+$services | Group-Object -Property Status
