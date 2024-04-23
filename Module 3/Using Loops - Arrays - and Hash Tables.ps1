@@ -1,13 +1,26 @@
 ﻿# Using Loops, Arrays, and Hash Tables
 
+# Foreach Example
 $names = @("Johan","Andrew","Jan","Sandy")
-
 foreach ($name in $names){
     Write-Host "the name is $name"
 
 }
-
 $names.GetType()
+
+# Do/While Example
+$MaxLoopCount = 5
+$Counter = 0
+do
+{
+    $Counter++    
+    Write-Host "Current count is: $Counter"
+    Start-sleep -Seconds 2
+}
+while ($Counter -lt $MaxLoopCount)
+
+
+
 
 ForEach-Object -InputObject (1..100000) { $_ } | Measure-Object
 Measure-Command { $Result = ForEach-Object -InputObject (1..100000) { $_ } }
@@ -17,16 +30,17 @@ Measure-Command { $Result = ForEach ($i in (1..100000)) { $i } }
 
 
 
-$ary = @()
-$ary = $ary + [PSCustomObject]@{ComputerName = "TEST1"; Version = "1.2" }
-$ary = $ary + [PSCustomObject]@{ComputerName = "TEST2"; Version = "1.1" }
-$ary = $ary + [PSCustomObject]@{ComputerName = "TEST3"; Version = "1.3" }
+$array = @()
+$array = $array + [PSCustomObject]@{ComputerName = "TEST1"; Version = "1.2" }
+$array = $array + [PSCustomObject]@{ComputerName = "TEST2"; Version = "1.1" }
+$array = $array + [PSCustomObject]@{ComputerName = "TEST3"; Version = "1.3" }
 
-$ht = $ary | Group-Object -Property ComputerName -AsHashTable
+$HashTable = $array | Group-Object -Property ComputerName -AsHashTable
 
 
-
-If ($ht.Contains("TEST3")){"YAY"}
+If ($HashTable.Contains("TEST3")){
+    Write-Host "YAY" -ForegroundColor Green
+}
 
 $Result = $ht.Get_Item("TEST2")
 $Result.version

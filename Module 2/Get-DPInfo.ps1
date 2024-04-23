@@ -221,47 +221,49 @@ process {
     $CPUS = (Get-WMIObject win32_processor | Measure-Object -Property numberoflogicalprocessors -Sum).sum
 
     # Microsoft Connect Cache (MCC)
-    $MCCEnabled = Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\SMS\DP -Name DOINCEnabled
-    If ($MCCEnabled.DOINCEnabled -eq 1){
-        $MCCEnabledDP = "True"
+    $MCCEnabled = Get-ItemProperty -Path HKLM:\SOFTWARE\Microsoft\SMS\DP -Name DOINCEnabled -ErrorAction SilentlyContinue
+    If ($MCCEnabled){
+        If ($MCCEnabled.DOINCEnabled -eq 1){
+            $MCCEnabledDP = "True"
 
-        $MCCServer = "localhost"
-        $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
-        Start-sleep -Seconds 5
-        $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
+            $MCCServer = "localhost"
+            $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
+            Start-sleep -Seconds 5
+            $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
         
-        # Measure Active connections three times
-        $MCC_AC1 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
-        Start-sleep -Seconds 10
-        $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
-        $MCC_AC2 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
-        Start-sleep -Seconds 10
-        $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
-        $MCC_AC3 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
+            # Measure Active connections three times
+            $MCC_AC1 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
+            Start-sleep -Seconds 10
+            $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
+            $MCC_AC2 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
+            Start-sleep -Seconds 10
+            $MCC = Invoke-RestMethod http://$($MCCServer):53000/summary
+            $MCC_AC3 = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.TCPv4ConnectionsActive)
 
-        $MCC_ActiveConnections = [math]::Round(($MCC_AC1+$MCC_AC2+$MCC_AC3)/3)
+            $MCC_ActiveConnections = [math]::Round(($MCC_AC1+$MCC_AC2+$MCC_AC3)/3)
 
-        $MCC_HitGB = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.DoincCacheTotalHitBytes /1GB,2)
-        $MCC_MissGB = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.DoincCacheTotalMissBytes /1GB,2)
-        If ($MCC_HitGB -eq 0){
-            # Do nothing, can't divide by zero
-            $MCC_CachePercent = 0
+            $MCC_HitGB = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.DoincCacheTotalHitBytes /1GB,2)
+            $MCC_MissGB = [Math]::Round($MCC.LastCacheNodeHealthPingRequest.DoincCacheTotalMissBytes /1GB,2)
+            If ($MCC_HitGB -eq 0){
+                # Do nothing, can't divide by zero
+                $MCC_CachePercent = 0
+            }
+            Else{
+                $MCC_CachePercent = "{0:P2}" -f ($MCC_HitGB / ($MCC_MissGB + $MCC_HitGB))
+            }
+        
         }
         Else{
-            $MCC_CachePercent = "{0:P2}" -f ($MCC_HitGB / ($MCC_MissGB + $MCC_HitGB))
+            $MCCEnabledDP = "False"
         }
-        
     }
-    Else{
-        $MCCEnabledDP = "False"
-    }
-
 
     # Validate the results
     If (!($MCC_ActiveConnections)){ $MCC_ActiveConnections = "NA"}
     If (!($MCC_HitGB)){ $MCC_HitGB = "NA"}
     If (!($MCC_MissGB)){ $MCC_MissGB = "NA"}
     If (!($MCC_CachePercent)){ $MCC_CachePercent = "NA"}
+    If (!($MCCEnabledDP)){ $MCCEnabledDP = "False"}
 
 # Use DP Computer Name as filename for the export
 $ExportFilePath = "$($ExportPath)\$($env:computerName).CSV"
