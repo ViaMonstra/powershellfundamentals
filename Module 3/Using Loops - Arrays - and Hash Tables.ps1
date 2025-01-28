@@ -21,7 +21,6 @@ while ($Counter -lt $MaxLoopCount)
 
 
 
-
 ForEach-Object -InputObject (1..100000) { $_ } | Measure-Object
 Measure-Command { $Result = ForEach-Object -InputObject (1..100000) { $_ } }
 
